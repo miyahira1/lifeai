@@ -115,16 +115,14 @@ export function useTaskNotifications() {
 }
 
 function sendSystemNotification(taskText: string) {
-    // Note: 'vibrate' is part of the Notification API but might not be in all TS definitions
-    // @ts-ignore
-    const options: NotificationOptions = {
+    const options = {
         body: `It's time for: ${taskText}`,
         icon: '/vite.svg',
         requireInteraction: true,
         vibrate: [200, 100, 200],
         tag: 'lifeai-reminder',
         renotify: true
-    };
+    } as NotificationOptions;
 
     if (Notification.permission === 'granted') {
         new Notification('LifeAI Task Reminder', options);
