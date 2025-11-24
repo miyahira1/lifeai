@@ -143,7 +143,7 @@ export function Tasks() {
                     )}
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                     <input
                         type="text"
                         value={taskText}
@@ -151,7 +151,8 @@ export function Tasks() {
                         onKeyPress={(e) => e.key === 'Enter' && handleSaveTask()}
                         placeholder={editingTask ? "Update task description..." : "Add a new task..."}
                         style={{
-                            flex: 1,
+                            flex: '1 1 200px',
+                            minWidth: '200px',
                             background: 'rgba(255, 255, 255, 0.05)',
                             border: '1px solid rgba(255, 255, 255, 0.1)',
                             borderRadius: '8px',
@@ -166,6 +167,7 @@ export function Tasks() {
                         style={{
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '0.5rem',
                             padding: '0.875rem 1.5rem',
                             background: editingTask
@@ -176,7 +178,8 @@ export function Tasks() {
                             color: 'white',
                             fontWeight: 600,
                             cursor: 'pointer',
-                            transition: 'transform 0.2s'
+                            transition: 'transform 0.2s',
+                            whiteSpace: 'nowrap'
                         }}
                         onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                         onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -186,13 +189,13 @@ export function Tasks() {
                     </button>
                 </div>
 
-                <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
                     {/* Day Selector */}
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}>
                             <Calendar size={16} /> Days:
                         </span>
-                        <div style={{ display: 'flex', gap: '0.25rem' }}>
+                        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                             {DAYS.map(day => (
                                 <button
                                     key={day.id}
@@ -222,7 +225,7 @@ export function Tasks() {
 
                     {/* Time Selector */}
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}>
                             <Clock size={16} /> Time:
                         </span>
                         <input
@@ -359,6 +362,6 @@ export function Tasks() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
