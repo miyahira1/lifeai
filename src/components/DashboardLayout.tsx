@@ -14,9 +14,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="dashboard-container">
-            {/* Sidebar */}
-            <aside className="dashboard-sidebar">
-                <nav className="dashboard-nav">
+            {/* Top Navigation Bar */}
+            <div className="dashboard-top-nav">
+                <nav className="dashboard-nav-items">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = location.pathname === item.path;
@@ -28,15 +28,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '1rem',
-                                    padding: '1rem 1.25rem',
-                                    borderRadius: '12px',
+                                    gap: '0.75rem',
+                                    padding: '0.75rem 1rem',
+                                    borderRadius: '9999px',
                                     textDecoration: 'none',
                                     color: isActive ? 'white' : 'var(--text-secondary)',
                                     background: isActive ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
                                     border: isActive ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid transparent',
                                     transition: 'all 0.2s',
-                                    fontWeight: isActive ? 600 : 400
+                                    fontWeight: isActive ? 600 : 400,
+                                    fontSize: '0.95rem'
                                 }}
                                 onMouseOver={(e: React.MouseEvent<HTMLAnchorElement>) => {
                                     if (!isActive) {
@@ -49,13 +50,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                     }
                                 }}
                             >
-                                <Icon size={20} />
+                                <Icon size={18} />
                                 {item.label}
                             </Link>
                         );
                     })}
                 </nav>
-            </aside>
+            </div>
 
             {/* Main Content */}
             <main className="dashboard-main">
