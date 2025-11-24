@@ -12,6 +12,7 @@ export function useTaskNotifications() {
     const [activeNotification, setActiveNotification] = useState<Task | null>(null);
     const lastCheckedMinute = useRef<string>('');
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const [permission, setPermission] = useState(Notification.permission);
 
     useEffect(() => {
         audioRef.current = new Audio(NOTIFICATION_SOUND);
@@ -68,11 +69,6 @@ export function useTaskNotifications() {
         // Check every 5 seconds to ensure we catch the minute change promptly
         const intervalId = setInterval(checkReminders, 5000);
 
-        // Request permission on mount if default
-        if (Notification.permission === 'default') {
-            Notification.requestPermission();
-        }
-
         return () => clearInterval(intervalId);
     }, [user, tasks]);
 
@@ -103,28 +99,34 @@ export function useTaskNotifications() {
         setActiveNotification(null);
     };
 
+    const requestPermission = async () => {
+        const result = await Notification.requestPermission();
+        setPermission(result);
+        return result;
+    };
+
     return {
         activeNotification,
         snoozeTask,
-        dismissNotification
+        dismissNotification,
+        permission,
+        requestPermission
     };
 }
 
 function sendSystemNotification(taskText: string) {
+    // Note: 'vibrate' is part of the Notification API but might not be in all TS definitions
+    // @ts-ignore
+    const options: NotificationOptions = {
+        body: `It's time for: ${taskText}`,
+        icon: '/vite.svg',
+        requireInteraction: true,
+        vibrate: [200, 100, 200],
+        tag: 'lifeai-reminder',
+        renotify: true
+    };
+
     if (Notification.permission === 'granted') {
-        new Notification('LifeAI Task Reminder', {
-            body: `It's time for: ${taskText}`,
-            icon: '/vite.svg',
-            requireInteraction: true
-        });
-    } else if (Notification.permission !== 'denied') {
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                new Notification('LifeAI Task Reminder', {
-                    body: `It's time for: ${taskText}`,
-                    requireInteraction: true
-                });
-            }
-        });
+        new Notification('LifeAI Task Reminder', options);
     }
 }

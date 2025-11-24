@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { CheckSquare, Zap, Home, TrendingUp, Bell, X, Clock } from 'lucide-react';
+import { CheckSquare, Zap, Home, TrendingUp, Bell, X, Clock, BellRing } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTaskNotifications } from '../hooks/useTaskNotifications';
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const location = useLocation();
-    const { activeNotification, snoozeTask, dismissNotification } = useTaskNotifications();
+    const { activeNotification, snoozeTask, dismissNotification, permission, requestPermission } = useTaskNotifications();
     const [snoozeDuration, setSnoozeDuration] = useState(10);
 
     const menuItems = [
@@ -60,6 +60,39 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     })}
                 </nav>
             </div>
+
+            {/* Notification Permission Banner */}
+            {permission === 'default' && (
+                <div style={{
+                    background: 'rgba(56, 189, 248, 0.1)',
+                    borderBottom: '1px solid rgba(56, 189, 248, 0.2)',
+                    padding: '0.75rem',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '1rem'
+                }}>
+                    <span style={{ color: '#38bdf8', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <BellRing size={16} />
+                        Enable notifications to get task reminders
+                    </span>
+                    <button
+                        onClick={requestPermission}
+                        style={{
+                            background: '#38bdf8',
+                            color: 'white',
+                            border: 'none',
+                            padding: '0.4rem 1rem',
+                            borderRadius: '6px',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Enable
+                    </button>
+                </div>
+            )}
 
             {/* Notification Modal */}
             {activeNotification && (
