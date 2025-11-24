@@ -21,6 +21,8 @@ export interface Task {
     userId: string;
     createdAt: Date;
     updatedAt: Date;
+    recurrence?: string[]; // Array of days, e.g., ['Mon', 'Tue']
+    reminderTime?: string; // Time string, e.g., '09:00'
 }
 
 // Automation types
@@ -65,19 +67,28 @@ export const subscribeToTasks = (
                 userId: data.userId,
                 createdAt: data.createdAt?.toDate() || new Date(),
                 updatedAt: data.updatedAt?.toDate() || new Date(),
+                recurrence: data.recurrence || [],
+                reminderTime: data.reminderTime || '',
             };
         });
         callback(tasks);
     });
 };
 
-export const addTask = async (userId: string, text: string): Promise<void> => {
+export const addTask = async (
+    userId: string,
+    text: string,
+    recurrence: string[] = [],
+    reminderTime: string = ''
+): Promise<void> => {
     await addDoc(collection(db, 'tasks'), {
         text,
         completed: false,
         userId,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
+        recurrence,
+        reminderTime,
     });
 };
 
