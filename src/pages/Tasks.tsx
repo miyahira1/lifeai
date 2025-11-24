@@ -6,7 +6,6 @@ import { subscribeToTasks, addTask as addTaskToDb, updateTask, deleteTask as del
 export function Tasks() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [newTask, setNewTask] = useState('');
-    const [loading, setLoading] = useState(true);
     const user = auth.currentUser;
 
     useEffect(() => {
@@ -15,7 +14,6 @@ export function Tasks() {
         // Subscribe to real-time updates
         const unsubscribe = subscribeToTasks(user.uid, (updatedTasks) => {
             setTasks(updatedTasks);
-            setLoading(false);
         });
 
         return () => unsubscribe();

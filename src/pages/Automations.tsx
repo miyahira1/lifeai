@@ -5,7 +5,6 @@ import { subscribeToAutomations, updateAutomation, deleteAutomation, type Automa
 
 export function Automations() {
     const [automations, setAutomations] = useState<Automation[]>([]);
-    const [loading, setLoading] = useState(true);
     const user = auth.currentUser;
 
     useEffect(() => {
@@ -14,7 +13,6 @@ export function Automations() {
         // Subscribe to real-time updates
         const unsubscribe = subscribeToAutomations(user.uid, (updatedAutomations) => {
             setAutomations(updatedAutomations);
-            setLoading(false);
         });
 
         return () => unsubscribe();
