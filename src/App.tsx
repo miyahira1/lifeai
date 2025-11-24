@@ -1,8 +1,32 @@
-import { Hero } from './components/Hero';
-import { Features } from './components/Features';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { auth } from './lib/firebase';
+import { Landing } from './pages/Landing';
+import { Login } from './pages/Login';
 import { Footer } from './components/Footer';
 
-function App() {
+function Layout({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <nav style={{
@@ -17,24 +41,92 @@ function App() {
         borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
       }}>
         <div className="container flex justify-between items-center">
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.05em' }}>
+          <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.05em', textDecoration: 'none', color: 'white' }}>
             Life<span className="text-gradient">AI</span>
-          </div>
-          <div className="flex" style={{ gap: '2rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          </Link>
+          <div className="flex items-center" style={{ gap: '2rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
             <a href="#" style={{ transition: 'color 0.2s' }} className="hover:text-white">Product</a>
             <a href="#" style={{ transition: 'color 0.2s' }} className="hover:text-white">Solutions</a>
             <a href="#" style={{ transition: 'color 0.2s' }} className="hover:text-white">Pricing</a>
+
+            {!loading && (
+              user ? (
+                <div className="flex items-center" style={{ gap: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {user.photoURL && (
+                      <img
+                        src={user.photoURL}
+                        alt={user.displayName || 'User'}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          border: '2px solid rgba(255, 255, 255, 0.2)'
+                        }}
+                      />
+                    )}
+                    <span style={{ color: 'white', fontWeight: 500 }}>
+                      {user.displayName || user.email}
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    style={{
+                      padding: '0.5rem 1.25rem',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '9999px',
+                      color: '#fca5a5',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <Link to="/login" style={{
+                  padding: '0.5rem 1.25rem',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '9999px',
+                  color: 'white',
+                  fontWeight: 500,
+                  transition: 'background 0.2s'
+                }} className="hover:bg-white/20">
+                  Sign In
+                </Link>
+              )
+            )}
           </div>
         </div>
       </nav>
 
-      <main>
-        <Hero />
-        <Features />
-      </main>
+      {children}
 
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={
+          <Layout>
+            <Landing />
+          </Layout>
+        } />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </Router>
   );
 }
 
