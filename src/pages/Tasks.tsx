@@ -271,6 +271,7 @@ export function Tasks() {
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
+                                    flexWrap: 'wrap',
                                     gap: '1rem',
                                     padding: '1rem',
                                     background: editingTask?.id === task.id ? 'rgba(56, 189, 248, 0.1)' : 'rgba(255, 255, 255, 0.03)',
@@ -300,7 +301,7 @@ export function Tasks() {
                                         accentColor: '#38bdf8'
                                     }}
                                 />
-                                <div style={{ flex: 1 }}>
+                                <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
                                     <span style={{
                                         display: 'block',
                                         color: task.completed ? 'var(--text-secondary)' : 'white',
