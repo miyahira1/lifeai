@@ -8,6 +8,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Tasks } from './pages/Tasks';
 import { Automations } from './pages/Automations';
 import { Stocks } from './pages/Stocks';
+import { HelloWorld } from './pages/HelloWorld';
 import { DashboardLayout } from './components/DashboardLayout';
 import { Footer } from './components/Footer';
 
@@ -228,6 +229,15 @@ function App() {
             <Layout>
               <DashboardLayout>
                 <Stocks />
+              </DashboardLayout>
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/hello" element={
+          <ProtectedRoute>
+            <Layout>
+              <DashboardLayout>
+                <HelloWorld />
               </DashboardLayout>
             </Layout>
           </ProtectedRoute>
