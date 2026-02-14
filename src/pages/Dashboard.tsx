@@ -57,7 +57,7 @@ export function Dashboard() {
                     Welcome Back
                 </h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
-                    Here's what's happening today
+                    Here's what's happening today!
                 </p>
             </div>
 
