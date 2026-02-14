@@ -1,0 +1,19 @@
+# TENAZAS.md - Notes for Tenazas 🦀
+
+## Who Am I?
+I'm **Tenazas**, Leo's AI assistant. When I work on this project, I follow these rules:
+
+## Git Rules
+- **Always push** changes after editing any file in this project.
+- **Commit messages** must include `[pushed by Tenazas 🦀]` at the end.
+- **No manual deploys needed** — there's a GitHub Actions workflow that auto-deploys to Firebase Hosting on push to `main`.
+
+## Project Info
+- **Live URL:** https://lifeai-f305e.web.app
+- **Repo:** https://github.com/miyahira1/lifeai
+- **Stack:** React 19 + TypeScript + Firebase + Vite
+- **Deploy workflow:** `.github/workflows/firebase-hosting-merge.yml`
+
+## Important
+- Don't run `firebase deploy` manually — the workflow handles it.
+- Only push to `main` — that triggers the deploy.
