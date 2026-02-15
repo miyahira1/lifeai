@@ -45,6 +45,18 @@ export interface Stock {
     createdAt: Date;
 }
 
+// Idea types
+export interface Idea {
+    id: string;
+    title: string;
+    description: string;
+    status: 'new' | 'mockup' | 'contacted' | 'sold';
+    userId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    refinement?: string;
+}
+
 // ============ TASKS ============
 
 export const subscribeToTasks = (
@@ -209,4 +221,65 @@ export const addStock = async (
 
 export const deleteStock = async (stockId: string): Promise<void> => {
     await deleteDoc(doc(db, 'stocks', stockId));
+};
+
+// ============ IDEAS ============
+
+export const subscribeToIdeas = (
+    userId: string,
+    callback: (ideas: Idea[]) => void
+): Unsubscribe => {
+    const q = query(
+        collection(db, 'ideas'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+    );
+
+    return onSnapshot(q, (snapshot) => {
+        const ideas: Idea[] = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                title: data.title,
+                description: data.description,
+                status: data.status,
+                userId: data.userId,
+                createdAt: data.createdAt?.toDate() || new Date(),
+                updatedAt: data.updatedAt?.toDate() || new Date(),
+                refinement: data.refinement,
+            };
+        });
+        callback(ideas);
+    });
+};
+
+export const addIdea = async (
+    userId: string,
+    title: string,
+    description: string,
+    status: 'new' | 'mockup' | 'contacted' | 'sold' = 'new'
+): Promise<void> => {
+    await addDoc(collection(db, 'ideas'), {
+        title,
+        description,
+        status,
+        userId,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+    });
+};
+
+export const updateIdea = async (
+    ideaId: string,
+    updates: Partial<Omit<Idea, 'id' | 'userId' | 'createdAt'>>
+): Promise<void> => {
+    const ideaRef = doc(db, 'ideas', ideaId);
+    await updateDoc(ideaRef, {
+        ...updates,
+        updatedAt: Timestamp.now(),
+    });
+};
+
+export const deleteIdea = async (ideaId: string): Promise<void> => {
+    await deleteDoc(doc(db, 'ideas', ideaId));
 };
