@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckSquare, Zap, Home, TrendingUp, Bell, X, Clock, BellRing, Hand } from 'lucide-react';
+import { CheckSquare, Zap, Home, TrendingUp, Bell, X, Clock, BellRing, Lightbulb } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTaskNotifications } from '../hooks/useTaskNotifications';
 
@@ -13,7 +13,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         { path: '/dashboard/tasks', icon: CheckSquare, label: 'Tasks' },
         { path: '/dashboard/automations', icon: Zap, label: 'Automations' },
         { path: '/dashboard/stocks', icon: TrendingUp, label: 'Stocks' },
-        { path: '/dashboard/hello', icon: Hand, label: 'Hello' },
+        { path: '/dashboard/ideas', icon: Lightbulb, label: 'Ideas' },
     ];
 
     return (

@@ -8,7 +8,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Tasks } from './pages/Tasks';
 import { Automations } from './pages/Automations';
 import { Stocks } from './pages/Stocks';
-import { HelloWorld } from './pages/HelloWorld';
+import { HelloIdeas } from './pages/Ideas';
 import { DashboardLayout } from './components/DashboardLayout';
 import { Footer } from './components/Footer';
 
@@ -233,11 +233,11 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        <Route path="/dashboard/hello" element={
+        <Route path="/dashboard/ideas" element={
           <ProtectedRoute>
             <Layout>
               <DashboardLayout>
-                <HelloWorld />
+                <HelloIdeas />
               </DashboardLayout>
             </Layout>
           </ProtectedRoute>
