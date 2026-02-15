@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lightbulb, Plus, X, Sparkles, ChevronRight, Trash2 } from 'lucide-react';
+import { Lightbulb, Plus, X, Sparkles, ChevronRight, Trash2, Edit2, Copy, Check } from 'lucide-react';
 import { auth } from '../lib/firebase';
 import { subscribeToIdeas, addIdea, updateIdea, deleteIdea, type Idea } from '../lib/db';
 
@@ -7,8 +7,14 @@ export function HelloIdeas() {
     const [ideas, setIdeas] = useState<Idea[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [newDescription, setNewDescription] = useState('');
+    const [newPlan, setNewPlan] = useState('');
+    const [editTitle, setEditTitle] = useState('');
+    const [editDescription, setEditDescription] = useState('');
+    const [editPlan, setEditPlan] = useState('');
+    const [copied, setCopied] = useState(false);
     
     const user = auth.currentUser;
 
@@ -16,21 +22,41 @@ export function HelloIdeas() {
         if (!user) return;
         const unsubscribe = subscribeToIdeas(user.uid, (updatedIdeas) => {
             setIdeas(updatedIdeas);
+            // Update selected idea if it exists (for real-time updates while viewing)
+            if (selectedIdea) {
+                const updated = updatedIdeas.find(i => i.id === selectedIdea.id);
+                if (updated) setSelectedIdea(updated);
+            }
         });
         return () => unsubscribe();
-    }, [user]);
+    }, [user, selectedIdea?.id]);
 
     const handleAddIdea = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newTitle.trim() || !user) return;
 
         try {
-            await addIdea(user.uid, newTitle, newDescription);
+            await addIdea(user.uid, newTitle, newDescription, newPlan);
             setNewTitle('');
             setNewDescription('');
+            setNewPlan('');
             setShowAddModal(false);
         } catch (error) {
             console.error('Error adding idea:', error);
+        }
+    };
+
+    const handleUpdateIdea = async () => {
+        if (!selectedIdea || !editTitle.trim()) return;
+        try {
+            await updateIdea(selectedIdea.id, {
+                title: editTitle,
+                description: editDescription,
+                implementationPlan: editPlan
+            });
+            setIsEditing(false);
+        } catch (error) {
+            console.error('Error updating idea:', error);
         }
     };
 
@@ -52,6 +78,22 @@ export function HelloIdeas() {
         } catch (error) {
             console.error('Error updating status:', error);
         }
+    };
+
+    const handleCopyPlan = () => {
+        if (selectedIdea?.implementationPlan) {
+            navigator.clipboard.writeText(selectedIdea.implementationPlan);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
+    const openDetails = (idea: Idea) => {
+        setSelectedIdea(idea);
+        setEditTitle(idea.title);
+        setEditDescription(idea.description);
+        setEditPlan(idea.implementationPlan || '');
+        setIsEditing(false);
     };
 
     return (
@@ -105,7 +147,7 @@ export function HelloIdeas() {
                 {ideas.map(idea => (
                     <div 
                         key={idea.id} 
-                        onClick={() => setSelectedIdea(idea)}
+                        onClick={() => openDetails(idea)}
                         style={{
                             background: 'rgba(255, 255, 255, 0.03)',
                             border: '1px solid rgba(255, 255, 255, 0.06)',
@@ -155,19 +197,19 @@ export function HelloIdeas() {
                             }}>
                                 {idea.status}
                             </span>
-                            {idea.refinement && (
+                            {idea.implementationPlan && (
                                 <span style={{
                                     fontSize: '0.75rem',
                                     padding: '0.25rem 0.6rem',
                                     borderRadius: '9999px',
-                                    background: 'rgba(168, 85, 247, 0.1)',
-                                    color: '#c084fc',
+                                    background: 'rgba(16, 185, 129, 0.1)',
+                                    color: '#34d399',
                                     fontWeight: 500,
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '0.25rem'
                                 }}>
-                                    <Sparkles size={12} /> Refined
+                                    <Check size={12} /> Planned
                                 </span>
                             )}
                         </div>
@@ -216,7 +258,11 @@ export function HelloIdeas() {
                             </div>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Description</label>
-                                <textarea value={newDescription} onChange={(e) => setNewDescription(e.target.value)} placeholder="Describe the idea..." rows={4} style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical' }} />
+                                <textarea value={newDescription} onChange={(e) => setNewDescription(e.target.value)} placeholder="Describe the idea..." rows={3} style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical' }} />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Implementation Plan</label>
+                                <textarea value={newPlan} onChange={(e) => setNewPlan(e.target.value)} placeholder="Steps to build it..." rows={3} style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical' }} />
                             </div>
                             <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
                                 <button type="button" onClick={() => setShowAddModal(false)} style={{ flex: 1, padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '8px', color: 'white', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
@@ -237,87 +283,158 @@ export function HelloIdeas() {
                 }} onClick={(e) => e.target === e.currentTarget && setSelectedIdea(null)}>
                     <div style={{
                         background: '#1a1a1a', border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '700px',
+                        borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '800px',
                         maxHeight: '90vh', overflowY: 'auto', position: 'relative',
                         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                     }}>
-                        <button onClick={() => setSelectedIdea(null)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                            <X size={20} />
-                        </button>
-
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <h2 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem', lineHeight: 1.3 }}>
-                                {selectedIdea.title}
-                            </h2>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                {(['new', 'mockup', 'contacted', 'sold'] as const).map(status => (
-                                    <button
-                                        key={status}
-                                        onClick={() => handleStatusChange(selectedIdea.id, status)}
-                                        style={{
-                                            fontSize: '0.75rem',
-                                            padding: '0.25rem 0.75rem',
-                                            borderRadius: '9999px',
-                                            background: selectedIdea.status === status ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                                            color: selectedIdea.status === status ? '#38bdf8' : 'var(--text-secondary)',
-                                            border: selectedIdea.status === status ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent',
-                                            cursor: 'pointer',
-                                            textTransform: 'capitalize',
-                                            transition: 'all 0.2s'
-                                        }}
-                                    >
-                                        {status}
-                                    </button>
-                                ))}
-                            </div>
+                        <div style={{ position: 'absolute', top: '1rem', right: '1rem', display: 'flex', gap: '0.5rem' }}>
+                            <button 
+                                onClick={() => setIsEditing(!isEditing)} 
+                                style={{ background: isEditing ? 'rgba(56, 189, 248, 0.2)' : 'transparent', border: 'none', color: isEditing ? '#38bdf8' : 'var(--text-secondary)', cursor: 'pointer', padding: '0.5rem', borderRadius: '8px' }}
+                                title="Edit Idea"
+                            >
+                                <Edit2 size={20} />
+                            </button>
+                            <button onClick={() => setSelectedIdea(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0.5rem' }}>
+                                <X size={20} />
+                            </button>
                         </div>
 
-                        <div style={{ marginBottom: '2rem' }}>
-                            <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em', marginBottom: '0.75rem', fontWeight: 600 }}>Description</h3>
-                            <p style={{ lineHeight: 1.7, color: 'rgba(255, 255, 255, 0.9)', fontSize: '1.05rem', whiteSpace: 'pre-wrap' }}>
-                                {selectedIdea.description}
-                            </p>
-                        </div>
-
-                        <div style={{ 
-                            background: 'rgba(168, 85, 247, 0.05)', 
-                            border: '1px solid rgba(168, 85, 247, 0.2)', 
-                            borderRadius: '12px', 
-                            padding: '1.5rem'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                                <Sparkles size={20} style={{ color: '#c084fc' }} />
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#c084fc' }}>AI Refinement</h3>
-                            </div>
-                            
-                            {selectedIdea.refinement ? (
-                                <div style={{ lineHeight: 1.7, color: 'rgba(255, 255, 255, 0.9)', fontSize: '1rem', whiteSpace: 'pre-wrap' }}>
-                                    {selectedIdea.refinement}
+                        {isEditing ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Title</label>
+                                    <input type="text" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', color: 'white', fontSize: '1.25rem', fontWeight: 600, outline: 'none' }} />
                                 </div>
-                            ) : (
-                                <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-secondary)' }}>
-                                    <p style={{ marginBottom: '1rem' }}>No AI refinement yet.</p>
-                                    <button
-                                        style={{
-                                            padding: '0.6rem 1.25rem',
-                                            background: 'rgba(168, 85, 247, 0.1)',
-                                            border: '1px solid rgba(168, 85, 247, 0.3)',
-                                            borderRadius: '8px',
-                                            color: '#c084fc',
-                                            fontWeight: 600,
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '0.5rem'
-                                        }}
-                                        onClick={() => window.open(`https://openclaw.ai/refine?idea=${encodeURIComponent(selectedIdea.title)}`, '_blank')}
-                                    >
-                                        <Sparkles size={16} /> Refine with OpenClaw
-                                    </button>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Description</label>
+                                    <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={4} style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical' }} />
                                 </div>
-                            )}
-                        </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Implementation Plan</label>
+                                    <textarea value={editPlan} onChange={(e) => setEditPlan(e.target.value)} rows={6} style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical', fontFamily: 'monospace' }} />
+                                </div>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                    <button onClick={() => setIsEditing(false)} style={{ flex: 1, padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '8px', color: 'white', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                                    <button onClick={handleUpdateIdea} style={{ flex: 1, padding: '0.75rem', background: '#38bdf8', border: 'none', borderRadius: '8px', color: 'white', fontWeight: 600, cursor: 'pointer' }}>Save Changes</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div style={{ marginBottom: '1.5rem', paddingRight: '4rem' }}>
+                                    <h2 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem', lineHeight: 1.3 }}>
+                                        {selectedIdea.title}
+                                    </h2>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        {(['new', 'mockup', 'contacted', 'sold'] as const).map(status => (
+                                            <button
+                                                key={status}
+                                                onClick={() => handleStatusChange(selectedIdea.id, status)}
+                                                style={{
+                                                    fontSize: '0.75rem',
+                                                    padding: '0.25rem 0.75rem',
+                                                    borderRadius: '9999px',
+                                                    background: selectedIdea.status === status ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                                                    color: selectedIdea.status === status ? '#38bdf8' : 'var(--text-secondary)',
+                                                    border: selectedIdea.status === status ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent',
+                                                    cursor: 'pointer',
+                                                    textTransform: 'capitalize',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                {status}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div style={{ marginBottom: '2rem' }}>
+                                    <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em', marginBottom: '0.75rem', fontWeight: 600 }}>Description</h3>
+                                    <p style={{ lineHeight: 1.7, color: 'rgba(255, 255, 255, 0.9)', fontSize: '1.05rem', whiteSpace: 'pre-wrap' }}>
+                                        {selectedIdea.description}
+                                    </p>
+                                </div>
+
+                                {selectedIdea.implementationPlan && (
+                                    <div style={{ marginBottom: '2rem' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                                            <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em', fontWeight: 600 }}>Implementation Plan</h3>
+                                            <button 
+                                                onClick={handleCopyPlan}
+                                                style={{ 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    gap: '0.4rem',
+                                                    background: copied ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    padding: '0.3rem 0.6rem',
+                                                    color: copied ? '#34d399' : 'var(--text-secondary)',
+                                                    fontSize: '0.8rem',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                {copied ? <Check size={14} /> : <Copy size={14} />}
+                                                {copied ? 'Copied' : 'Copy'}
+                                            </button>
+                                        </div>
+                                        <div style={{ 
+                                            background: 'rgba(0, 0, 0, 0.2)', 
+                                            border: '1px solid rgba(255, 255, 255, 0.06)', 
+                                            borderRadius: '8px', 
+                                            padding: '1rem',
+                                            fontSize: '0.95rem',
+                                            fontFamily: 'monospace',
+                                            whiteSpace: 'pre-wrap',
+                                            color: 'var(--text-secondary)'
+                                        }}>
+                                            {selectedIdea.implementationPlan}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div style={{ 
+                                    background: 'rgba(168, 85, 247, 0.05)', 
+                                    border: '1px solid rgba(168, 85, 247, 0.2)', 
+                                    borderRadius: '12px', 
+                                    padding: '1.5rem'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                                        <Sparkles size={20} style={{ color: '#c084fc' }} />
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#c084fc' }}>AI Refinement</h3>
+                                    </div>
+                                    
+                                    {selectedIdea.refinement ? (
+                                        <div style={{ lineHeight: 1.7, color: 'rgba(255, 255, 255, 0.9)', fontSize: '1rem', whiteSpace: 'pre-wrap' }}>
+                                            {selectedIdea.refinement}
+                                        </div>
+                                    ) : (
+                                        <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-secondary)' }}>
+                                            <p style={{ marginBottom: '1rem' }}>No AI refinement yet.</p>
+                                            <button
+                                                style={{
+                                                    padding: '0.6rem 1.25rem',
+                                                    background: 'rgba(168, 85, 247, 0.1)',
+                                                    border: '1px solid rgba(168, 85, 247, 0.3)',
+                                                    borderRadius: '8px',
+                                                    color: '#c084fc',
+                                                    fontWeight: 600,
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.5rem'
+                                                }}
+                                                onClick={() => window.open(`https://openclaw.ai/refine?idea=${encodeURIComponent(selectedIdea.title)}`, '_blank')}
+                                            >
+                                                <Sparkles size={16} /> Refine with OpenClaw
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

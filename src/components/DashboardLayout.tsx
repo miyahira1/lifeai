@@ -10,10 +10,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
     const menuItems = [
         { path: '/dashboard', icon: Home, label: 'Dashboard' },
+        { path: '/dashboard/ideas', icon: Lightbulb, label: 'Ideas' },
         { path: '/dashboard/tasks', icon: CheckSquare, label: 'Tasks' },
         { path: '/dashboard/automations', icon: Zap, label: 'Automations' },
         { path: '/dashboard/stocks', icon: TrendingUp, label: 'Stocks' },
-        { path: '/dashboard/ideas', icon: Lightbulb, label: 'Ideas' },
     ];
 
     return (

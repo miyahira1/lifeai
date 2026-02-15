@@ -55,6 +55,7 @@ export interface Idea {
     createdAt: Date;
     updatedAt: Date;
     refinement?: string;
+    implementationPlan?: string;
 }
 
 // ============ TASKS ============
@@ -247,6 +248,7 @@ export const subscribeToIdeas = (
                 createdAt: data.createdAt?.toDate() || new Date(),
                 updatedAt: data.updatedAt?.toDate() || new Date(),
                 refinement: data.refinement,
+                implementationPlan: data.implementationPlan,
             };
         });
         callback(ideas);
@@ -257,11 +259,13 @@ export const addIdea = async (
     userId: string,
     title: string,
     description: string,
+    implementationPlan: string = '',
     status: 'new' | 'mockup' | 'contacted' | 'sold' = 'new'
 ): Promise<void> => {
     await addDoc(collection(db, 'ideas'), {
         title,
         description,
+        implementationPlan,
         status,
         userId,
         createdAt: Timestamp.now(),
