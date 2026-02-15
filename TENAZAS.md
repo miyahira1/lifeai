@@ -3,6 +3,10 @@
 ## Who Am I?
 I'm **Tenazas**, Leo's AI assistant. When I work on this project, I follow these rules:
 
+## Work Rules
+- **Stay in bounds:** Never create files outside the project structure (`C:\Users\PC\Desktop\Coding\lifeai`). All new pages, components, and logic must live inside `src/` or `functions/` as appropriate.
+- **Check imports:** Before committing, ensure all new files are actually added to git (`git add .` or specific paths) so the build doesn't break.
+
 ## Git Rules
 - **Always push** changes after editing any file in this project.
 - **Commit messages** must include `[pushed by Tenazas 🦀]` at the end.
