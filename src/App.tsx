@@ -9,6 +9,7 @@ import { Tasks } from './pages/Tasks';
 import { Automations } from './pages/Automations';
 import { Stocks } from './pages/Stocks';
 import { HelloIdeas } from './pages/Ideas';
+import { Agents } from './pages/Agents';
 import { DashboardLayout } from './components/DashboardLayout';
 import { Footer } from './components/Footer';
 
@@ -238,6 +239,15 @@ function App() {
             <Layout>
               <DashboardLayout>
                 <HelloIdeas />
+              </DashboardLayout>
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/agents" element={
+          <ProtectedRoute>
+            <Layout>
+              <DashboardLayout>
+                <Agents />
               </DashboardLayout>
             </Layout>
           </ProtectedRoute>
