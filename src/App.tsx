@@ -82,14 +82,9 @@ function Layout({ children }: { children: React.ReactNode }) {
                       }}
                     />
                   )}
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ color: 'white', fontWeight: 500 }}>
-                      {user.displayName || user.email}
-                    </span>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', fontFamily: 'monospace' }}>
-                      {user.uid}
-                    </span>
-                  </div>
+                  <span style={{ color: 'white', fontWeight: 500 }}>
+                    {user.displayName || user.email}
+                  </span>
                 </div>
                 <button
                   onClick={handleSignOut}
