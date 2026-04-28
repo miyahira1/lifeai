@@ -10,6 +10,7 @@ import { Automations } from './pages/Automations';
 import { Stocks } from './pages/Stocks';
 import { HelloIdeas } from './pages/Ideas';
 import { Agents } from './pages/Agents';
+import { AgentsMD } from './pages/AgentsMD';
 import { DashboardLayout } from './components/DashboardLayout';
 import { Footer } from './components/Footer';
 
@@ -248,6 +249,15 @@ function App() {
             <Layout>
               <DashboardLayout>
                 <Agents />
+              </DashboardLayout>
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/agents-md" element={
+          <ProtectedRoute>
+            <Layout>
+              <DashboardLayout>
+                <AgentsMD />
               </DashboardLayout>
             </Layout>
           </ProtectedRoute>
