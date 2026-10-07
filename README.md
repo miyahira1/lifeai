@@ -33,6 +33,9 @@ npm run dev
 # Build for production
 npm run build
 
+# Lint (ESLint; not run in CI, no test suite yet)
+npm run lint
+
 # Deploy to Firebase
 npm run deploy
 ```
