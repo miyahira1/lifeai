@@ -411,25 +411,7 @@ export function HelloIdeas() {
                                         </div>
                                     ) : (
                                         <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-secondary)' }}>
-                                            <p style={{ marginBottom: '1rem' }}>No AI refinement yet.</p>
-                                            <button
-                                                style={{
-                                                    padding: '0.6rem 1.25rem',
-                                                    background: 'rgba(168, 85, 247, 0.1)',
-                                                    border: '1px solid rgba(168, 85, 247, 0.3)',
-                                                    borderRadius: '8px',
-                                                    color: '#c084fc',
-                                                    fontWeight: 600,
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s',
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    gap: '0.5rem'
-                                                }}
-                                                onClick={() => window.open(`https://openclaw.ai/refine?idea=${encodeURIComponent(selectedIdea.title)}`, '_blank')}
-                                            >
-                                                <Sparkles size={16} /> Refine with OpenClaw
-                                            </button>
+                                            <p>No AI refinement yet.</p>
                                         </div>
                                     )}
                                 </div>
