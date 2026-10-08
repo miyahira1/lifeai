@@ -15,7 +15,7 @@ export function Login() {
             setError(null);
             await signInWithPopup(auth, googleProvider);
             navigate('/');
-        } catch (err: any) {
+        } catch (err) {
             console.error('Error signing in with Google', err);
             setError('Failed to sign in with Google. Please check your configuration.');
         } finally {

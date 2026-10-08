@@ -1,10 +1,7 @@
 import React from 'react';
+import { formatBuildDate } from '../lib/buildDate';
 
-const lastUpdated = new Date(__BUILD_DATE__).toLocaleString('en-US', {
-    timeZone: 'America/Buenos_Aires',
-    dateStyle: 'medium',
-    timeStyle: 'short'
-});
+const lastUpdated = formatBuildDate(__BUILD_DATE__);
 
 export const Footer: React.FC = () => {
     return (

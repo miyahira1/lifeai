@@ -11,8 +11,10 @@ interface FileEntry {
 export function AgentsMD() {
     const [files, setFiles] = useState<FileEntry[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [content, setContent] = useState<string>('');
-    const [loading, setLoading] = useState(false);
+    const [loaded, setLoaded] = useState<{ id: string; content: string } | null>(null);
+    const content = loaded?.content ?? '';
+    // Loading while the selected file's content hasn't arrived yet
+    const loading = selectedId !== null && loaded?.id !== selectedId;
 
     useEffect(() => {
         fetch('/agents-files.json')
@@ -27,13 +29,15 @@ export function AgentsMD() {
         if (!selectedId) return;
         const entry = files.find(f => f.id === selectedId);
         if (!entry) return;
-        setLoading(true);
+        let cancelled = false;
         fetch(entry.file)
             .then(r => r.text())
             .then(text => {
-                setContent(text);
-                setLoading(false);
+                if (!cancelled) setLoaded({ id: entry.id, content: text });
             });
+        return () => {
+            cancelled = true;
+        };
     }, [selectedId, files]);
 
     return (

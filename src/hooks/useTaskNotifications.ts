@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { subscribeToTasks, updateTask, type Task } from '../lib/db';
 import { auth } from '../lib/firebase';
+import { isReminderDue, snoozedReminderTime, toReminderTime } from '../lib/reminders';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 
 // Gentle chime sound
@@ -34,35 +35,27 @@ export function useTaskNotifications() {
     useEffect(() => {
         if (!user || tasks.length === 0) return;
 
+        const playNotificationSound = () => {
+            if (audioRef.current) {
+                audioRef.current.play().catch(e => console.log('Audio play failed', e));
+            }
+        };
+
         const checkReminders = () => {
             const now = new Date();
-            const currentDay = now.toLocaleDateString('en-US', { weekday: 'short' }); // "Mon", "Tue", etc.
-            const currentTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+            const currentTime = toReminderTime(now);
 
             // Only check once per minute
             if (currentTime === lastCheckedMinute.current) return;
             lastCheckedMinute.current = currentTime;
 
             tasks.forEach(task => {
-                // Skip if no reminder time set
-                if (!task.reminderTime) return;
+                if (!isReminderDue(task, now)) return;
 
-                // Check if time matches
-                if (task.reminderTime === currentTime) {
-                    // Check recurrence
-                    // If recurrence is set, today must be in the list
-                    if (task.recurrence && task.recurrence.length > 0) {
-                        if (!task.recurrence.includes(currentDay)) return;
-                    }
-
-                    // If task is completed, we generally don't remind
-                    if (task.completed) return;
-
-                    // Trigger notification
-                    setActiveNotification(task);
-                    playNotificationSound();
-                    sendSystemNotification(task.text);
-                }
+                // Trigger notification
+                setActiveNotification(task);
+                playNotificationSound();
+                sendSystemNotification(task.text);
             });
         };
 
@@ -72,20 +65,10 @@ export function useTaskNotifications() {
         return () => clearInterval(intervalId);
     }, [user, tasks]);
 
-    const playNotificationSound = () => {
-        if (audioRef.current) {
-            audioRef.current.play().catch(e => console.log('Audio play failed', e));
-        }
-    };
-
     const snoozeTask = async (task: Task, minutes: number = 10) => {
         if (!task.reminderTime) return;
 
-        const [hours, mins] = task.reminderTime.split(':').map(Number);
-        const date = new Date();
-        date.setHours(hours, mins + minutes);
-
-        const newTime = date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+        const newTime = snoozedReminderTime(task.reminderTime, minutes);
 
         try {
             await updateTask(task.id, { reminderTime: newTime });
