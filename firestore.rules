@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Only Leo's verified Google account has any access.
+    function isLeo() {
+      return request.auth != null
+        && request.auth.token.email == 'miyahira1@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    // Leo, and the doc being read/updated/deleted is his.
+    function isLeoOwner() {
+      return isLeo() && resource.data.userId == request.auth.uid;
+    }
+
+    // Leo, creating a doc that is his.
+    function isLeoCreate() {
+      return isLeo() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // userId can't change on update.
+    function keepsUserId() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    match /tasks/{taskId} {
+      allow create: if isLeoCreate();
+      allow read, delete: if isLeoOwner();
+      allow update: if isLeoOwner() && keepsUserId();
+    }
+
+    match /stocks/{stockId} {
+      allow create: if isLeoCreate();
+      allow read, delete: if isLeoOwner();
+      allow update: if isLeoOwner() && keepsUserId();
+    }
+
+    match /automations/{automationId} {
+      allow create: if isLeoCreate();
+      allow read, delete: if isLeoOwner();
+      allow update: if isLeoOwner() && keepsUserId();
+    }
+
+    match /ideas/{ideaId} {
+      allow create: if isLeoCreate();
+      allow read, delete: if isLeoOwner();
+      allow update: if isLeoOwner() && keepsUserId();
+    }
+
+    // No catch-all: everything else is denied.
+  }
+}

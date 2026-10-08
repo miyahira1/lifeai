@@ -1,7 +1,7 @@
 name: CI
 
-# Required check on main (once branch protection is enabled): `checks`
-# (shown in the GitHub UI as "CI / checks").
+# Required checks on main: `checks` and `rules`
+# (shown in the GitHub UI as "CI / checks" and "CI / rules").
 # No secrets are used, so this also runs on fork PRs.
 
 on:
@@ -38,3 +38,20 @@ jobs:
       - name: Build
         run: npm run build
 
+  rules:
+    name: rules
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Install
+        run: npm ci
+      - name: Firestore rules tests (emulator)
+        run: npm run test:rules
