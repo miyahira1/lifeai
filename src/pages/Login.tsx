@@ -1,11 +1,8 @@
-import { ArrowLeft } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
 import { useState } from 'react';
 
 export function Login() {
-    const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -13,8 +10,8 @@ export function Login() {
         try {
             setLoading(true);
             setError(null);
+            // App re-renders into the dashboard once auth state changes.
             await signInWithPopup(auth, googleProvider);
-            navigate('/');
         } catch (err) {
             console.error('Error signing in with Google', err);
             setError('Failed to sign in with Google. Please check your configuration.');
@@ -73,27 +70,14 @@ export function Login() {
                     padding: '2.5rem',
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                 }}>
-                    <Link to="/" style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        color: 'var(--text-secondary)',
+                    <div style={{
                         marginBottom: '2rem',
-                        fontSize: '0.9rem',
-                        transition: 'color 0.2s'
-                    }} className="hover:text-white">
-                        <ArrowLeft size={16} />
-                        Back to Home
-                    </Link>
-
-                    <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                        <h1 style={{
-                            fontSize: '2rem',
-                            fontWeight: 700,
-                            marginBottom: '0.5rem',
-                            letterSpacing: '-0.02em'
-                        }}>Welcome Back</h1>
-                        <p style={{ color: 'var(--text-secondary)' }}>Sign in to continue to LifeAI</p>
+                        textAlign: 'center',
+                        fontSize: '2.5rem',
+                        fontWeight: 700,
+                        letterSpacing: '-0.05em'
+                    }}>
+                        Life<span className="text-gradient">AI</span>
                     </div>
 
                     {error && (
@@ -129,8 +113,7 @@ export function Login() {
                             fontWeight: 600,
                             cursor: loading ? 'not-allowed' : 'pointer',
                             opacity: loading ? 0.7 : 1,
-                            transition: 'transform 0.2s, box-shadow 0.2s',
-                            marginBottom: '1.5rem'
+                            transition: 'transform 0.2s, box-shadow 0.2s'
                         }}
                         onMouseOver={(e) => {
                             if (!loading) {
@@ -159,84 +142,6 @@ export function Login() {
                             </>
                         )}
                     </button>
-
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '1rem',
-                        marginBottom: '1.5rem',
-                        color: 'var(--text-secondary)',
-                        fontSize: '0.875rem'
-                    }}>
-                        <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.1)' }} />
-                        <span>or continue with email</span>
-                        <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.1)' }} />
-                    </div>
-
-                    <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <div>
-                            <label style={{
-                                display: 'block',
-                                marginBottom: '0.5rem',
-                                fontSize: '0.875rem',
-                                color: 'var(--text-secondary)'
-                            }}>Email address</label>
-                            <input type="email" placeholder="name@example.com" style={{
-                                width: '100%',
-                                background: 'rgba(255, 255, 255, 0.03)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                borderRadius: '8px',
-                                padding: '0.75rem 1rem',
-                                color: 'white',
-                                fontSize: '0.95rem',
-                                outline: 'none',
-                                transition: 'border-color 0.2s'
-                            }}
-                                className="focus:border-blue-500"
-                            />
-                        </div>
-                        <div>
-                            <label style={{
-                                display: 'block',
-                                marginBottom: '0.5rem',
-                                fontSize: '0.875rem',
-                                color: 'var(--text-secondary)'
-                            }}>Password</label>
-                            <input type="password" placeholder="••••••••" style={{
-                                width: '100%',
-                                background: 'rgba(255, 255, 255, 0.03)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                borderRadius: '8px',
-                                padding: '0.75rem 1rem',
-                                color: 'white',
-                                fontSize: '0.95rem',
-                                outline: 'none',
-                                transition: 'border-color 0.2s'
-                            }} />
-                        </div>
-                        <button type="submit" style={{
-                            background: 'linear-gradient(to right, #38bdf8, #818cf8)',
-                            color: 'white',
-                            border: 'none',
-                            padding: '0.875rem',
-                            borderRadius: '8px',
-                            fontSize: '0.95rem',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            marginTop: '0.5rem'
-                        }}>
-                            Sign In
-                        </button>
-                    </form>
-
-                    <p style={{
-                        marginTop: '1.5rem',
-                        textAlign: 'center',
-                        fontSize: '0.875rem',
-                        color: 'var(--text-secondary)'
-                    }}>
-                        Don't have an account? <a href="#" style={{ color: '#38bdf8' }}>Sign up</a>
-                    </p>
                 </div>
             </div>
         </div>
